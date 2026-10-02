@@ -1,5 +1,5 @@
 export const NAV_LINKS = [
-  { label: 'Home', path: '/home' },
+  { label: 'Home', path: '/' },
   { label: 'Countries', path: '/countries' },
   { label: 'Compare', path: '/compare' },
   { label: 'Services', path: '/services' },

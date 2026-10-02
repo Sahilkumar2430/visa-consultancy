@@ -3,12 +3,12 @@ import { Helmet } from 'react-helmet-async';
 import { CalendarCheck, Clock, Video, Phone, MapPin, CheckCircle2 } from 'lucide-react';
 import PageHero from '../components/shared/PageHero.jsx';
 import Button from '../components/ui/Button.jsx';
-import Input, { Select, Textarea } from '../components/ui/Input.jsx';
+import Input, { Textarea } from '../components/ui/Input.jsx';
 import { useToast } from '../context/ToastContext.jsx';
 import { submitLead } from '../services/contentService.js';
 import { APP_NAME } from '../utils/constants.js';
 
-/** Next 10 weekdays from today. */
+/* Next 10 weekdays from today */
 function generateDays() {
   const days = [];
   const d = new Date();
@@ -52,26 +52,58 @@ export default function Appointment() {
 
   const submit = async (e) => {
     e.preventDefault();
-    if (!slot) return toast.error('Please pick a time slot.');
-    if (!name.trim() || !email.trim() || !phone.trim())
-      return toast.error('Please fill in your name, email and phone.');
+
+    if (!slot) {
+      toast.error('Please pick a time slot.');
+      return;
+    }
+    if (!name.trim() || !email.trim() || !phone.trim()) {
+      toast.error('Please fill in your name, email and phone.');
+      return;
+    }
+
+    const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+    if (!emailOk) {
+      toast.error('Please enter a valid email address.');
+      return;
+    }
 
     setLoading(true);
+
     try {
-      await submitLead({
-        name,
-        email,
-        phone,
-        preferredContactMethod: MODES.find((m) => m.id === mode).label,
-        message: `Appointment request for ${booking()}. Notes: ${notes || '—'}`,
+      const selectedMode = MODES.find((m) => m.id === mode);
+
+      const payload = {
+        name: name.trim(),
+        email: email.trim().toLowerCase(),
+        phone: phone.trim(),
+        preferredContactMethod: 'Email', // must be one of: Phone, WhatsApp, Email
+        message: `Appointment request for ${booking()}. Format: ${selectedMode?.label || 'Video Call'}. Notes: ${notes || '—'}`,
         source: 'appointment-scheduler',
-      });
+        country: 'Not specified',
+        visaType: 'Appointment',
+        preferredDestination: 'Not specified',
+        goal: 'Consultation',
+      };
+
+      await submitLead(payload);
+
       setSubmitted(true);
       toast.success('Appointment requested! We’ll confirm by email shortly.');
     } catch (err) {
-      toast.error(
-        err?.message || 'Could not book. Please try again or contact us directly.'
-      );
+      console.error('Appointment submit error:', err);
+
+      const backendDetails = err?.response?.data?.details;
+      if (Array.isArray(backendDetails) && backendDetails.length) {
+        const first = backendDetails[0];
+        toast.error(`${first.field}: ${first.message}`);
+      } else {
+        const msg =
+          err?.response?.data?.message ||
+          err?.message ||
+          'Could not book. Please try again or contact us directly.';
+        toast.error(msg);
+      }
     } finally {
       setLoading(false);
     }
@@ -83,27 +115,36 @@ export default function Appointment() {
         <Helmet>
           <title>Appointment Confirmed — {APP_NAME}</title>
         </Helmet>
+
         <PageHero
           eyebrow="Appointment"
           title="Appointment Requested"
           breadcrumbs={[{ label: 'Appointment' }]}
         />
+
         <section className="section-padding bg-cream-50">
           <div className="container-page max-w-xl">
             <div className="rounded-3xl bg-white border border-navy-100 shadow-card p-8 sm:p-10 text-center">
               <div className="w-16 h-16 rounded-2xl bg-emerald-50 flex items-center justify-center mx-auto mb-5">
                 <CheckCircle2 className="w-8 h-8 text-emerald-500" />
               </div>
+
               <h2 className="font-display text-2xl font-bold text-navy-900 mb-3">
                 We’ve received your request
               </h2>
+
               <p className="text-navy-500 leading-relaxed">
                 A consultant will confirm your appointment by email shortly. In the
                 meantime, feel free to explore our tools.
               </p>
+
               <div className="mt-6 flex flex-wrap justify-center gap-3">
-                <Button to="/match" variant="secondary">Visa Match</Button>
-                <Button to="/" variant="accent">Back to Home</Button>
+                <Button to="/match" variant="secondary">
+                  Visa Match
+                </Button>
+                <Button to="/" variant="accent">
+                  Back to Home
+                </Button>
               </div>
             </div>
           </div>
@@ -139,6 +180,7 @@ export default function Appointment() {
                 <CalendarCheck className="w-5 h-5 text-royal-600" />
                 Select a date
               </h3>
+
               <div className="flex gap-2 overflow-x-auto hide-scrollbar pb-1">
                 {days.map((d, i) => {
                   const isActive = i === day;
@@ -179,6 +221,7 @@ export default function Appointment() {
                   <Clock className="w-5 h-5 text-royal-600" />
                   Choose a time
                 </h3>
+
                 <div className="grid grid-cols-4 gap-2">
                   {SLOTS.map((t) => (
                     <button
@@ -201,6 +244,7 @@ export default function Appointment() {
                 <h3 className="font-display text-lg font-bold text-navy-900 mb-4">
                   Meeting format
                 </h3>
+
                 <div className="space-y-2">
                   {MODES.map((m) => {
                     const Icon = m.icon;
@@ -230,12 +274,14 @@ export default function Appointment() {
               <h3 className="font-display text-lg font-bold text-navy-900 mb-2">
                 Your details
               </h3>
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <Input
                   label="Full Name"
                   required
                   value={name}
                   onChange={(e) => setName(e.target.value)}
+                  placeholder="e.g. Alex Johnson"
                 />
                 <Input
                   label="Email"
@@ -243,19 +289,24 @@ export default function Appointment() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  placeholder="you@example.com"
                 />
               </div>
+
               <Input
                 label="Phone"
                 type="tel"
                 required
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
+                placeholder="+1 000 000 0000"
               />
+
               <Textarea
                 label="What would you like to discuss? (optional)"
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
+                placeholder="Share any details about your goal, destination or questions…"
               />
             </div>
 
@@ -263,9 +314,13 @@ export default function Appointment() {
               <Button type="submit" variant="accent" size="lg" loading={loading}>
                 {loading ? 'Booking…' : 'Request Appointment'}
               </Button>
+
               <p className="text-xs text-navy-400">
                 {slot ? (
-                  <>Booking: <strong className="text-navy-700">{booking()}</strong></>
+                  <>
+                    Booking:{' '}
+                    <strong className="text-navy-700">{booking()}</strong>
+                  </>
                 ) : (
                   'Select a time slot to continue'
                 )}

@@ -33,7 +33,6 @@ export default function Navbar() {
     };
   }, [open]);
 
-  // Close "More" dropdown when clicking outside
   useEffect(() => {
     const handler = (e) => {
       if (moreRef.current && !moreRef.current.contains(e.target)) {
@@ -55,13 +54,6 @@ export default function Navbar() {
             Trusted guidance for study, work &amp; immigration — worldwide.
           </p>
           <div className="flex items-center gap-6">
-            <Link
-              to="/portal"
-              className="text-navy-300 hover:text-white transition-colors font-medium"
-            >
-              ← Switch Portal
-            </Link>
-            <span className="text-navy-600">|</span>
             <a
               href="tel:+10000000000"
               className="flex items-center gap-1.5 text-navy-200 hover:text-white transition-colors"
@@ -80,6 +72,7 @@ export default function Navbar() {
         </div>
       </div>
 
+      {/* Main navbar */}
       <header
         className={cn(
           'sticky top-0 z-50 transition-all duration-300',

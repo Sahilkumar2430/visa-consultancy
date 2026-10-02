@@ -6,10 +6,7 @@ import { AdminAuthProvider } from './context/AdminAuthContext.jsx';
 import ProtectedRoute from './components/admin/ProtectedRoute.jsx';
 import AdminLayout from './components/admin/AdminLayout.jsx';
 
-/* Portal selector */
-const PortalSelect = lazy(() => import('./pages/PortalSelect.jsx'));
-
-/* Public site */
+/* ---------- Public pages ---------- */
 const Home = lazy(() => import('./pages/Home.jsx'));
 const Countries = lazy(() => import('./pages/Countries.jsx'));
 const CountryDetail = lazy(() => import('./pages/CountryDetail.jsx'));
@@ -33,7 +30,7 @@ const Terms = lazy(() => import('./pages/Terms.jsx'));
 const Disclaimer = lazy(() => import('./pages/Disclaimer.jsx'));
 const NotFound = lazy(() => import('./pages/NotFound.jsx'));
 
-/* Admin pages */
+/* ---------- Admin pages ---------- */
 const AdminLogin = lazy(() => import('./pages/admin/AdminLogin.jsx'));
 const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard.jsx'));
 const AdminLeads = lazy(() => import('./pages/admin/AdminLeads.jsx'));
@@ -51,18 +48,10 @@ export default function App() {
     <Suspense fallback={<PageLoader />}>
       <Routes>
         {/* =====================================================
-            1. PORTAL SELECTOR at root
-           ===================================================== */}
-        <Route path="/" element={<PortalSelect />} />
-
-        {/* =====================================================
-            2. ADMIN — completely separate from public Layout
-           ===================================================== */}
-
-        {/* Login page — no layout, no auth required */}
+         *  ADMIN (separate, uses AdminAuthProvider)
+         * ===================================================== */}
         <Route path="/admin/login" element={<AdminLogin />} />
 
-        {/* Protected admin area */}
         <Route
           path="/admin"
           element={
@@ -86,10 +75,10 @@ export default function App() {
         </Route>
 
         {/* =====================================================
-            3. CLIENT SITE — everything under the public Layout
-           ===================================================== */}
+         *  CLIENT SITE (public — everything else)
+         * ===================================================== */}
         <Route element={<Layout />}>
-          <Route path="/home" element={<Home />} />
+          <Route path="/" element={<Home />} />
           <Route path="/countries" element={<Countries />} />
           <Route path="/countries/:slug" element={<CountryDetail />} />
           <Route path="/compare" element={<Compare />} />
@@ -110,12 +99,8 @@ export default function App() {
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/terms" element={<Terms />} />
           <Route path="/disclaimer" element={<Disclaimer />} />
+          <Route path="*" element={<NotFound />} />
         </Route>
-
-        {/* =====================================================
-            4. 404
-           ===================================================== */}
-        <Route path="*" element={<NotFound />} />
       </Routes>
     </Suspense>
   );
