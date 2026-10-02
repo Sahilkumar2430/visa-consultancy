@@ -162,29 +162,29 @@ function pickArray(responseData) {
 
 export async function fetchCountries() {
   // 1. REST Countries API (all 250+ countries)
+   // 1. Try backend proxy for REST Countries (bypasses CORS)
   try {
-    const res = await fetch('/restcountries/all', { cache: 'no-store' });
-    if (res.ok) {
-      const raw = await res.json();
-      const arr = Array.isArray(raw) ? raw : raw?.data;
-      if (Array.isArray(arr)) {
-        const mapped = arr
-          .map(transformApiCountry)
-          .filter(Boolean)
-          .sort((a, b) => a.name.localeCompare(b.name));
-        if (mapped.length) return mapped;
-      }
+    const { data } = await api.get('/countries/external');
+    const arr = Array.isArray(data?.data) ? data.data : Array.isArray(data) ? data : null;
+    if (arr && arr.length) {
+      const mapped = arr
+        .map(transformApiCountry)
+        .filter(Boolean)
+        .sort((a, b) => a.name.localeCompare(b.name));
+      if (mapped.length) return mapped;
     }
-  } catch {}
+  } catch (err) {
+    console.warn('Backend countries proxy failed:', err.message);
+  }
 
-  // 2. Backend
+  // 2. Try backend's own countries collection (fallback)
   try {
     const { data } = await api.get('/countries');
     const list = pickArray(data);
     if (list && list.length) return list;
   } catch {}
 
-  // 3. Demo
+  // 3. Final fallback — demo data
   return demoCountries;
 }
 
