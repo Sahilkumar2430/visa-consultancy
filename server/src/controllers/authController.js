@@ -6,8 +6,8 @@ import { env } from '../config/env.js';
 
 const cookieOpts = {
   httpOnly: true,
-  secure: env.isProd,
-  sameSite: env.isProd ? 'strict' : 'lax',
+    secure: true,
+  sameSite: 'none',
   maxAge: 7 * 24 * 60 * 60 * 1000,
 };
 
