@@ -1,17 +1,24 @@
 import { Router } from 'express';
 import {
-  listCountries, getCountryBySlug, createCountry, updateCountry, deleteCountry,
+  listCountries,
+  getCountryBySlug,
+  createCountry,
+  updateCountry,
+  deleteCountry,
+  proxyRestCountries,
 } from '../controllers/countryController.js';
 import { protect, requireRole } from '../middleware/auth.js';
-import { countryRules } from '../validators/countryValidators.js';
-import { validate } from '../middleware/validate.js';
 
 const router = Router();
 
+/* Public */
 router.get('/', listCountries);
+router.get('/external', proxyRestCountries);
 router.get('/:slug', getCountryBySlug);
-router.post('/', protect, countryRules, validate, createCountry);
-router.put('/:id', protect, countryRules, validate, updateCountry);
+
+/* Admin — protected */
+router.post('/', protect, createCountry);
+router.put('/:id', protect, updateCountry);
 router.delete('/:id', protect, requireRole('admin'), deleteCountry);
 
 export default router;
