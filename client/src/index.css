@@ -1,0 +1,123 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply bg-cream-50 text-navy-900 font-sans antialiased;
+  }
+
+  *:focus-visible {
+    @apply outline-none ring-2 ring-royal-500 ring-offset-2 ring-offset-white rounded-md;
+  }
+
+  ::selection {
+    @apply bg-royal-500/20 text-navy-900;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-cream-100;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-navy-200 rounded-full;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-navy-300;
+  }
+}
+
+@layer components {
+  .container-page {
+    @apply mx-auto w-full max-w-[1280px] px-5 sm:px-6 lg:px-8;
+  }
+
+  .section-padding {
+    @apply py-16 md:py-24 lg:py-28;
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .gradient-text {
+    @apply bg-gradient-to-r from-royal-600 to-teal-500 bg-clip-text text-transparent;
+  }
+
+  .glass-card {
+    @apply bg-white/80 backdrop-blur-xl border border-white/60 shadow-card;
+  }
+
+  .nav-link {
+    @apply relative text-sm font-medium text-navy-700 hover:text-royal-600 transition-colors duration-200;
+  }
+
+  .nav-link::after {
+    content: '';
+    @apply absolute -bottom-1 left-0 w-0 h-0.5 bg-royal-500 rounded-full transition-all duration-300;
+  }
+
+  .nav-link:hover::after,
+  .nav-link.active::after {
+    @apply w-full;
+  }
+
+  .nav-link.active {
+    @apply text-royal-600;
+  }
+
+  .skeleton {
+    @apply bg-gradient-to-r from-navy-100 via-navy-50 to-navy-100 bg-[length:1000px_100%] animate-shimmer rounded-lg;
+  }
+
+  .prose-custom {
+    @apply text-navy-600 leading-relaxed;
+  }
+}
+
+@layer utilities {
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .text-shadow-sm {
+    text-shadow: 0 1px 2px rgba(15, 30, 56, 0.3);
+  }
+}
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Smoother mobile sticky CTA spacing */
+@media (max-width: 1023px) {
+  body {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+/* Better tap highlight on mobile */
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
