@@ -14,10 +14,13 @@ const app = express();
 
 /* ---------- Security ---------- */
 app.use(helmet());
+
 app.use(
   cors({
     origin: env.clientUrl,
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
   })
 );
 
@@ -37,6 +40,7 @@ app.set('trust proxy', 1);
 
 /* ---------- Routes ---------- */
 app.use('/api', routes);
+
 app.get('/', (_req, res) =>
   res.json({ success: true, message: 'GlobalPath Visa Consultancy API' })
 );
@@ -51,6 +55,7 @@ async function start() {
   app.listen(env.port, () => {
     console.log(`🚀 Server running on http://localhost:${env.port}`);
     console.log(`📦 Environment: ${env.nodeEnv}`);
+    console.log(`🌐 CORS origin: ${env.clientUrl}`);
   });
 }
 
