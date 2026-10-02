@@ -1,0 +1,12 @@
+{
+  "rewrites": [
+    {
+      "source": "/restcountries/:path*",
+      "destination": "https://restcountries.com/v3.1/:path*"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
